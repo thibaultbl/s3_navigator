@@ -5,8 +5,9 @@ class S3Navigator:
         self.client = client
         self.bucket = bucket
     
-    def list_folder(self, folder: str) -> list[str]:
+    def list_folder(self, folder: str):
         sub_folders = list()
+
         result = self.client.list_objects(Bucket=self.bucket, Prefix=folder, Delimiter='/')
         for o in result.get('CommonPrefixes'):
             sub_folders.append(o.get('Prefix'))
