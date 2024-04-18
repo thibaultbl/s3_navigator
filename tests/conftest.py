@@ -28,5 +28,7 @@ def setup_bucket(tmp_path, bucket):
             f.close()
 
         response = client.upload_file(tmp_path / "demofile2.txt", bucket, "folder1/test.txt")
+        response = client.upload_file(tmp_path / "demofile2.txt", bucket, "folder2/folder1-1/test2.txt")
+        response = client.upload_file(tmp_path / "demofile2.txt", bucket, "folder2/test3.txt")
 
         yield client
