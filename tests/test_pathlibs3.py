@@ -1,5 +1,6 @@
 import boto3
 from pathlibs3.pathlibs3 import S3Path
+from pathlib import Path
 
 class TestS3Path:
     def test_list_folder(self, setup_bucket, bucket):
@@ -37,6 +38,43 @@ class TestS3Path:
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path='folder1/test.txt')
         assert navigator.parent == S3Path(client, bucket=bucket, path='folder1')
+    
+    def test_exists(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path='folder1/test.txt')
+
+        assert navigator.exists() == True
+        navigator = S3Path(client, bucket=bucket, path='folder1/filedonotexists.txt')
+
+        assert navigator.exists() == False
+
+    def test_copy(self, setup_bucket, bucket, tmp_path):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path='folder1/test.txt')
+
+        # From s3 to s3
+        new_file = S3Path(client, bucket=bucket, path="folder2/test.txt")
+        assert new_file.exists() == False
+        S3Path.copy(navigator, new_file)
+        assert new_file.exists() == True
+
+        # From s3 to local
+        with open(tmp_path / "new_file.txt", "a") as f:
+            f.write("Now the file has more content!")
+            f.close()
+
+        new_file = tmp_path / "new_file.txt"
+        new_s3_file =  S3Path(client, bucket=bucket, path="folder4/new_file.txt")
+        assert new_file.exists() == True
+        assert new_s3_file.exists() == False
+        S3Path.copy(new_file, new_s3_file)
+        assert new_s3_file.exists() == True
+
+        # From local to s3
+        new_file = tmp_path / "local_new_file.txt"
+        assert new_file.exists() == False
+        S3Path.copy(navigator, new_file)
+        assert new_file.exists() == True
 
 
 

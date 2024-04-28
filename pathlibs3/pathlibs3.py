@@ -1,6 +1,8 @@
 import boto3
 import logging
 from pathlib import Path
+import botocore
+from typing import Union
 
 
 class S3Path:
@@ -44,6 +46,49 @@ class S3Path:
         
     def is_dir(self):
         return self.path.endswith("/")
+
+    def exists(self):
+        try:
+            self.client.head_object(Bucket=self.bucket, Key=self.path)
+            return True
+        except botocore.exceptions.ClientError as e:
+            if e.response["Error"]["Code"] == "404":
+                return False
+            else:
+                raise
+
+    @classmethod
+    def _copy_from_s3_to_s3(cls, source: "S3Path", destination: "S3Path"):
+        client = source.client
+        copy_source = {
+                'Bucket': source.bucket,
+                'Key': source.path
+            }
+        client.copy(copy_source, destination.bucket, destination.path)
+    
+    @classmethod
+    def _copy_from_local_to_s3(cls, source: Path, destination: "S3Path"):
+        client = destination.client
+        client.upload_file(str(source), destination.bucket, destination.path)
+    
+    @classmethod
+    def _copy_from_s3_to_local(cls, source: "S3Path", destination: Path):
+        client = source.client
+        with open(str(destination), 'wb') as f:
+            client.download_fileobj(source.bucket, source.path, f)
+    
+    @classmethod
+    def copy(cls, source: Union["S3Path", Path], destination: Union["S3Path", Path]):
+        if isinstance(source, S3Path) and isinstance(destination, S3Path):
+            cls._copy_from_s3_to_s3(source, destination)
+        
+        if isinstance(source, Path) and isinstance(destination, S3Path):
+            cls._copy_from_local_to_s3(source, destination)
+        
+        if isinstance(source, S3Path) and isinstance(destination, Path):
+            cls._copy_from_s3_to_local(source, destination)
+
+            
 
     @property
     def parent(self):
