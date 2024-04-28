@@ -1,5 +1,6 @@
 import boto3
 import logging
+from pathlib import Path
 
 
 class S3Path:
@@ -43,3 +44,7 @@ class S3Path:
         
     def is_dir(self):
         return self.path.endswith("/")
+
+    @property
+    def parent(self):
+        return S3Path(self.client, self.bucket, str(Path(self.path).parent))

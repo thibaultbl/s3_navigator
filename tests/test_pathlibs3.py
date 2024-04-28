@@ -32,6 +32,12 @@ class TestS3Path:
         navigator = S3Path(client, bucket=bucket, path='folder1/test.txt')
 
         assert navigator.is_dir() == False
+    
+    def test_parent(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path='folder1/test.txt')
+        assert navigator.parent == S3Path(client, bucket=bucket, path='folder1')
+
 
 
     
