@@ -1,5 +1,5 @@
 import boto3
-from s3_navigator.s3_navigator import S3Navigator
+from pathlibs3.pathlibs3 import S3Navigator
 
 class TestS3Navigator:
     def test_list_folder(self, setup_bucket, bucket):

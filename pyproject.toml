@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "s3_navigator"
+name = "pathlibs3"
 version = "0.1.0"
 description = ""
 authors = ["cameronmcnz <you@example.com>"]
