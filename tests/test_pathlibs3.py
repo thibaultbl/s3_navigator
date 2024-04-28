@@ -25,8 +25,13 @@ class TestS3Path:
     
     def test_is_dir(self, setup_bucket, bucket):
         client = setup_bucket
-        navigator = S3Path(client, bucket=bucket, path="")
-        breakpoint()
+        navigator = S3Path(client, bucket=bucket, path='folder1/')
+
+        assert navigator.is_dir() == True
+
+        navigator = S3Path(client, bucket=bucket, path='folder1/test.txt')
+
+        assert navigator.is_dir() == False
 
 
     
