@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "pathlibs3"
 version = "0.1.0"
-description = ""
-authors = ["cameronmcnz <you@example.com>"]
+description = "S3 navigation using object, inspired by pathlib.Path"
+authors = ["thibault.blanc]
 
 [tool.poetry.dependencies]
 python = "^3.10"
