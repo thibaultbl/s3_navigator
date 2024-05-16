@@ -10,27 +10,36 @@ class S3Path:
         self.client = client
         self.bucket = bucket
         self.path = path
-    
+
+    def __repr__(self):
+        return f"S3Path(bucket={self.bucket}, path={self.path})"
+
     def __eq__(self, other) -> bool:
-        return self.path == other.path and self.client == other.client and self.bucket == other.bucket
-    
+        return (
+            self.path == other.path
+            and self.client == other.client
+            and self.bucket == other.bucket
+        )
+
     def __str__(self):
         return self.path
-    
+
     def _retrieve_folder_contents(self, results):
         contents = []
-        if 'CommonPrefixes' in results.keys():
-            contents +=  [x["Prefix"] for x in results.get('CommonPrefixes')]
-        if 'Contents' in results.keys():
-             contents += [x["Key"] for x in results.get("Contents")]
-    
+        if "CommonPrefixes" in results.keys():
+            contents += [x["Prefix"] for x in results.get("CommonPrefixes")]
+        if "Contents" in results.keys():
+            contents += [x["Key"] for x in results.get("Contents")]
+
         return contents
-    
-    def iterdir(self, recursive: bool=False, only_files: bool=False):
+
+    def iterdir(self, recursive: bool = False, only_files: bool = False):
         logging.warning("looking for folder %s", self.path)
         sub_folders = list()
 
-        result = self.client.list_objects(Bucket=self.bucket, Prefix=self.path, Delimiter='/')
+        result = self.client.list_objects(
+            Bucket=self.bucket, Prefix=self.path, Delimiter="/"
+        )
         for object in self._retrieve_folder_contents(result):
             object = S3Path(self.client, self.bucket, object)
             sub_folders.append(object)
@@ -43,7 +52,7 @@ class S3Path:
 
         for subfolder in sub_folders:
             yield subfolder
-        
+
     def is_dir(self):
         return self.path.endswith("/")
 
@@ -57,38 +66,50 @@ class S3Path:
             else:
                 raise
 
+    @property
+    def name(self):
+        return Path(self.path).name
+
+    def __truediv__(self, other: str) -> "S3Path":
+        return S3Path(
+            client=self.client,
+            bucket=self.bucket,
+            path=str(Path(self.path) / other),
+        )
+
     @classmethod
     def _copy_from_s3_to_s3(cls, source: "S3Path", destination: "S3Path"):
         client = source.client
-        copy_source = {
-                'Bucket': source.bucket,
-                'Key': source.path
-            }
+        copy_source = {"Bucket": source.bucket, "Key": source.path}
         client.copy(copy_source, destination.bucket, destination.path)
-    
+
     @classmethod
     def _copy_from_local_to_s3(cls, source: Path, destination: "S3Path"):
         client = destination.client
         client.upload_file(str(source), destination.bucket, destination.path)
-    
+
     @classmethod
     def _copy_from_s3_to_local(cls, source: "S3Path", destination: Path):
         client = source.client
-        with open(str(destination), 'wb') as f:
+        with open(str(destination), "wb") as f:
             client.download_fileobj(source.bucket, source.path, f)
-    
-    @classmethod
-    def copy(cls, source: Union["S3Path", Path], destination: Union["S3Path", Path]):
-        if isinstance(source, S3Path) and isinstance(destination, S3Path):
-            cls._copy_from_s3_to_s3(source, destination)
-        
-        if isinstance(source, Path) and isinstance(destination, S3Path):
-            cls._copy_from_local_to_s3(source, destination)
-        
-        if isinstance(source, S3Path) and isinstance(destination, Path):
-            cls._copy_from_s3_to_local(source, destination)
 
-            
+    @classmethod
+    def copy(cls, origin: Union["S3Path", Path], destination: Union["S3Path", Path]):
+        if origin.is_dir():
+            for path in origin.iterdir():
+                cls.copy(path, destination / path.name)
+
+        else:
+            if isinstance(origin, S3Path) and isinstance(destination, S3Path):
+                cls._copy_from_s3_to_s3(origin, destination)
+
+            if isinstance(origin, Path) and isinstance(destination, S3Path):
+                cls._copy_from_local_to_s3(origin, destination)
+
+            if isinstance(origin, S3Path) and isinstance(destination, Path):
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                cls._copy_from_s3_to_local(origin, destination)
 
     @property
     def parent(self):

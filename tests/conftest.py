@@ -1,11 +1,13 @@
 import boto3
-import pytest 
+import pytest
 import moto
 import os
+
 
 @pytest.fixture
 def bucket():
     return "bucket1"
+
 
 @pytest.fixture(scope="function")
 def aws_credentials():
@@ -19,16 +21,22 @@ def aws_credentials():
 
 @pytest.fixture()
 def setup_bucket(tmp_path, bucket):
-    with moto.mock_aws():
+    with moto.mock_s3():
         client = boto3.client("s3", region_name="us-east-1")
         client.create_bucket(Bucket=bucket)
-        
+
         with open(tmp_path / "demofile2.txt", "a") as f:
             f.write("Now the file has more content!")
             f.close()
 
-        response = client.upload_file(tmp_path / "demofile2.txt", bucket, "folder1/test.txt")
-        response = client.upload_file(tmp_path / "demofile2.txt", bucket, "folder2/folder1-1/test2.txt")
-        response = client.upload_file(tmp_path / "demofile2.txt", bucket, "folder2/test3.txt")
+        response = client.upload_file(
+            tmp_path / "demofile2.txt", bucket, "folder1/test.txt"
+        )
+        response = client.upload_file(
+            tmp_path / "demofile2.txt", bucket, "folder2/folder1-1/test2.txt"
+        )
+        response = client.upload_file(
+            tmp_path / "demofile2.txt", bucket, "folder2/test3.txt"
+        )
 
         yield client
