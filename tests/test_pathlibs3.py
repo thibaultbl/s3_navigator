@@ -57,25 +57,25 @@ class TestS3Path:
         navigator = S3Path(client, bucket=bucket, path="")
         res = navigator.iterdir(recursive=True)
 
-        assert list(res) == [
-            S3Path(client, bucket, x)
-            for x in [
+        assert set([x.path for x in res]) == set(
+            [
                 "folder1/",
                 "folder1/test.txt",
                 "folder2/",
                 "folder2/folder1-1/",
                 "folder2/test3.txt",
+                "folder2/folder1-1/test2.txt",
             ]
-        ]
+        )
 
     def test_list_folder_recursively_only_files(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="")
         res = navigator.iterdir(recursive=True, only_files=True)
 
-        assert list(res) == [
-            S3Path(client, bucket, x) for x in ["folder1/test.txt", "folder2/test3.txt"]
-        ]
+        assert set([x.path for x in res]) == set(
+            ["folder1/test.txt", "folder2/test3.txt", "folder2/folder1-1/test2.txt"]
+        )
 
     def test_is_dir(self, setup_bucket, bucket):
         client = setup_bucket

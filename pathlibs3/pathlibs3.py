@@ -64,7 +64,7 @@ class S3Path:
             object = S3Path(self.client, self.bucket, object)
             sub_folders.append(object)
             if object.is_dir() and recursive:
-                subfolder = object.iterdir()
+                subfolder = object.iterdir(recursive=recursive)
                 sub_folders += subfolder
 
         if only_files:
