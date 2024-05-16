@@ -62,6 +62,8 @@ class S3Path:
         )
         for object in self._retrieve_folder_contents(result):
             object = S3Path(self.client, self.bucket, object)
+            if object.path == self.path:
+                continue
             sub_folders.append(object)
             if object.is_dir() and recursive:
                 subfolder = object.iterdir(recursive=recursive)
