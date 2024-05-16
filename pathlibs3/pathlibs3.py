@@ -3,6 +3,26 @@ import logging
 from pathlib import Path
 import botocore
 from typing import Union
+from botocore.exceptions import ClientError
+
+
+def upload_file(
+    client, source, destination_bucket, destination_path, exists_ok: bool = False
+):
+    try:
+        exist = True
+        if not exists_ok:
+            try:
+                client.head_object(Bucket=destination_bucket, Key=destination_path)
+            except botocore.exceptions.ClientError:
+                exist = False
+        if exists_ok or exist is False:
+            client.upload_file(str(source), destination_bucket, destination_path)
+    except ClientError as e:
+        if e.response["Error"]["Code"] == "FileExists":
+            logging.error(f"File {destination_path} already exist")
+        else:
+            raise e
 
 
 class S3Path:
@@ -86,7 +106,7 @@ class S3Path:
     @classmethod
     def _copy_from_local_to_s3(cls, source: Path, destination: "S3Path"):
         client = destination.client
-        client.upload_file(str(source), destination.bucket, destination.path)
+        upload_file(client, str(source), destination.bucket, destination.path)
 
     @classmethod
     def _copy_from_s3_to_local(cls, source: "S3Path", destination: Path):

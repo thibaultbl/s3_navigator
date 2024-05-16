@@ -1,6 +1,44 @@
 import boto3
-from pathlibs3.pathlibs3 import S3Path
+from pathlibs3.pathlibs3 import S3Path, upload_file
 from pathlib import Path
+
+
+def test_upload_file(setup_bucket, bucket, tmp_path):
+    client = setup_bucket
+
+    file = "folder1/test.txt"
+    file_s3 = S3Path(client, bucket, file)
+
+    # Contents before upload
+    local_file = Path(tmp_path / "existing.txt")
+    S3Path.copy(file_s3, local_file)
+
+    with open(tmp_path / "existing.txt", "r") as f:
+        res = f.read()
+        assert res == "Now the file has more content!"
+
+    new_file = tmp_path / "new_file.txt"
+    with open(new_file, "a") as f:
+        f.write("New contents!")
+        f.close()
+
+    # Without exists ok
+    upload_file(client, new_file, bucket, file)
+
+    S3Path.copy(file_s3, local_file)
+
+    with open(tmp_path / "existing.txt", "r") as f:
+        res = f.read()
+        assert res == "Now the file has more content!"
+
+    # With exists ok
+    upload_file(client, new_file, bucket, file, exists_ok=True)
+
+    S3Path.copy(file_s3, local_file)
+
+    with open(tmp_path / "existing.txt", "r") as f:
+        res = f.read()
+        assert res == "New contents!"
 
 
 class TestS3Path:
