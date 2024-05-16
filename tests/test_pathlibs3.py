@@ -68,6 +68,17 @@ class TestS3Path:
             ]
         )
 
+    def test_list_folder_recursively_with_slash(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder2/")
+        res = navigator.iterdir(recursive=True)
+
+        assert set([x.path for x in res]) == {
+            "folder2/test3.txt",
+            "folder2/folder1-1/test2.txt",
+            "folder2/folder1-1/",
+        }
+
     def test_list_folder_recursively_only_files(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="")
