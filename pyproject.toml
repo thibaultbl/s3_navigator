@@ -1,14 +1,14 @@
 [tool.poetry]
 name = "pathlibs3"
-version = "0.2.5"
+version = "0.2.6"
 description = "S3 navigation using object, inspired by pathlib.Path"
 authors = ["thibault.blanc"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
 boto3 = "*"
-urllib3 = "^2.2.1"
-moto = "^4.1.12"
+urllib3 = "*"
+moto = "^4.0.0"
 Sphinx = { version = "4.2.0", optional = true }
 sphinx-rtd-theme = { version = "1.0.0", optional = true }
 sphinxcontrib-napoleon = { version = "0.7", optional = true }
