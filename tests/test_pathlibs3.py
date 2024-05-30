@@ -42,6 +42,18 @@ def test_upload_file(setup_bucket, bucket, tmp_path):
 
 
 class TestS3Path:
+    def test_concatenation(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="")
+
+        assert navigator.path == ""
+
+        new_path = navigator / "test/test.txt"
+        assert new_path.path == "test/test.txt"
+
+        new_path = navigator / "test/random/"
+        assert new_path.path == "test/random/"
+
     def test_list_folder(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="")

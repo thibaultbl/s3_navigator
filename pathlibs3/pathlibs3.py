@@ -96,7 +96,7 @@ class S3Path:
         return S3Path(
             client=self.client,
             bucket=self.bucket,
-            path=str(Path(self.path) / other),
+            path=f"{self.path}/{other}".replace("//", "/").lstrip("/"),
         )
 
     @classmethod
