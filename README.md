@@ -75,10 +75,6 @@ s3_path_to_anotherfolder = S3Path(client, bucket, "anotherfolder/")
 S3Path.copy(s3_path_to_myfolder, s3_path_to_anotherfolder)
 ```
 
-## How pathlibS3 distinguish file from folder
-
-> :warning: PathlibS3 will distinguish folder from file using this simple rule: if a path end with "/" then it is a folder, if not it is a file.
-
 # run test
 
 run test with `poetry run python -m pytest`
