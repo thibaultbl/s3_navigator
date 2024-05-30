@@ -14,7 +14,7 @@ from pathlibs3.pathlibs3 import S3Path
 client = boto3.client("s3", region_name="us-east-1")
 bucket = "test-bucket"
 
-# Create an object to s3://test-bucket/myfolder/random_file.txt
+# Create an object to s3://test-bucket/myfolder
 s3_path_to_myfolder = S3Path(client, bucket, "myfolder/")
 
 
@@ -31,7 +31,7 @@ for path in s3_path.iterdir():
     print(path)
 
 # Iter over this directory recursively
-for path in s3_path.iterdir():
+for path in s3_path.iterdir(recursive=True):
     print(path)
 ```
 
@@ -75,6 +75,7 @@ s3_path_to_anotherfolder = S3Path(client, bucket, "anotherfolder/")
 S3Path.copy(s3_path_to_myfolder, s3_path_to_anotherfolder)
 ```
 
-# run test
+# Contribution
+## run test
 
 run test with `poetry run python -m pytest`
