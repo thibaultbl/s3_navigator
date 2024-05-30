@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "pathlibs3"
-version = "0.2.8"
+version = "0.2.9"
 description = "S3 navigation using object, inspired by pathlib.Path"
 authors = ["thibault.blanc"]
 readme = "README.md"
+homepage = "https://github.com/thibaultbl/s3_navigator"
 
 [tool.poetry.dependencies]
 python = "^3.10"
