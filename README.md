@@ -8,7 +8,7 @@ pip install pathlibs3
 
 ## Create a PathlibS3 Object
 ```python
-
+from pathlibs3.pathlibs3 import S3Path
 # Create a pathlibs3
 
 client = boto3.client("s3", region_name="us-east-1")
@@ -47,7 +47,6 @@ local_path = Path("/tmp/local_folder")
 
 # Will download the s3 folder localy
 S3Path.copy(s3_path_to_myfolder, local_path)
-
 ```
 
 ### Copy from local to s3
