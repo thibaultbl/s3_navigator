@@ -75,14 +75,23 @@ class S3Path:
         for subfolder in sub_folders:
             yield subfolder
 
-    def is_dir(self):
-        return self.path.endswith("/")
+    def is_dir(self) -> bool:
+        # return self.path.endswith("/")
+        return self._is_dir()
+
+    def _is_dir(self) -> bool:
+        try:
+            result = self.client.head_object(Bucket=self.bucket, Key=self.path)
+        except ClientError:
+            return True
+
+        return False
 
     def exists(self):
         try:
             self.client.head_object(Bucket=self.bucket, Key=self.path)
             return True
-        except botocore.exceptions.ClientError as e:
+        except ClientError as e:
             if e.response["Error"]["Code"] == "404":
                 return False
             else:

@@ -110,6 +110,10 @@ class TestS3Path:
 
         assert navigator.is_dir() == False
 
+        navigator = S3Path(client, bucket=bucket, path="folder1")
+
+        assert navigator.is_dir() == True
+
     def test_parent(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/test.txt")
