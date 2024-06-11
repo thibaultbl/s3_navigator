@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pathlibs3"
-version = "0.2.12"
+version = "0.2.13"
 description = "S3 navigation using object, inspired by pathlib.Path"
 authors = ["thibault.blanc"]
 readme = "README.md"
@@ -8,17 +8,17 @@ homepage = "https://github.com/thibaultbl/s3_navigator"
 license = "Apache-2.0"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.10"
 boto3 = "*"
 urllib3 = "*"
 
-Sphinx = { version = "4.2.0", optional = true }
-sphinx-rtd-theme = { version = "1.0.0", optional = true }
-sphinxcontrib-napoleon = { version = "0.7", optional = true }
+Sphinx = { version = "*", optional = true }
+sphinx-rtd-theme = { version = "*", optional = true }
+sphinxcontrib-napoleon = { version = "*", optional = true }
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
-moto = "^4.0.0"
+pytest = ">=6.2.5"
+moto = ">=5.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

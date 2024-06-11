@@ -21,7 +21,7 @@ def aws_credentials():
 
 @pytest.fixture()
 def setup_bucket(tmp_path, bucket):
-    with moto.mock_s3():
+    with moto.mock_aws():
         client = boto3.client("s3", region_name="us-east-1")
         client.create_bucket(Bucket=bucket)
 

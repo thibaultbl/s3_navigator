@@ -126,7 +126,13 @@ class S3Path:
             client.download_fileobj(source.bucket, source.path, f)
 
     @classmethod
-    def copy(cls, origin: Union["S3Path", Path], destination: Union["S3Path", Path]):
+    def copy(cls, origin: Union["S3Path", Path, str], destination: Union["S3Path", Path, str]):
+        if isinstance(origin, str):
+            origin = Path(origin)
+        
+        if isinstance(destination, str):
+            destination = Path(destination)
+
         if origin.is_dir():
             for path in origin.iterdir():
                 cls.copy(path, destination / path.name)

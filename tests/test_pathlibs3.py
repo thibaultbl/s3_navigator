@@ -1,3 +1,4 @@
+import pytest
 import boto3
 from pathlibs3.pathlibs3 import S3Path, upload_file
 from pathlib import Path
@@ -128,7 +129,8 @@ class TestS3Path:
 
         assert navigator.exists() == False
 
-    def test_copy_file(self, setup_bucket, bucket, tmp_path):
+    @pytest.mark.parametrize("is_str", [True, False])
+    def test_copy_file(self, setup_bucket, bucket, tmp_path, is_str):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/test.txt")
 
@@ -147,16 +149,17 @@ class TestS3Path:
         new_s3_file = S3Path(client, bucket=bucket, path="folder4/new_file.txt")
         assert new_file.exists() == True
         assert new_s3_file.exists() == False
-        S3Path.copy(new_file, new_s3_file)
+        S3Path.copy(new_file if not is_str else str(new_file), new_s3_file)
         assert new_s3_file.exists() == True
 
         # From local to s3
         new_file = tmp_path / "local_new_file.txt"
         assert new_file.exists() == False
-        S3Path.copy(navigator, new_file)
+        S3Path.copy(navigator, new_file if not is_str else str(new_file))
         assert new_file.exists() == True
 
-    def test_copy_folder(self, setup_bucket, bucket, tmp_path):
+    @pytest.mark.parametrize("is_str", [True, False])
+    def test_copy_folder(self, setup_bucket, bucket, tmp_path, is_str):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder2/")
 
@@ -183,7 +186,7 @@ class TestS3Path:
         new_file = tmp_path / "new_file.txt"
         new_s3_file = S3Path(client, bucket=bucket, path="folder5")
         assert new_s3_file.exists() == False
-        S3Path.copy(tmp_path, new_s3_file)
+        S3Path.copy(tmp_path if not is_str else str(tmp_path), new_s3_file)
 
         new_s3_file = S3Path(client, bucket=bucket, path="folder5/new_file.txt")
         assert new_s3_file.exists() == True
@@ -192,7 +195,7 @@ class TestS3Path:
         new_file = tmp_path / "folder6"
         new_file.mkdir()
         navigator = S3Path(client, bucket=bucket, path="folder2/")
-        S3Path.copy(navigator, new_file)
+        S3Path.copy(navigator, new_file if not is_str else str(new_file))
         assert set([x.name for x in new_file.iterdir()]) == {
             "folder1-1",
             "test3.txt",
