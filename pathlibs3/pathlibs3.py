@@ -54,7 +54,7 @@ class S3Path:
         return contents
 
     def iterdir(self, recursive: bool = False, only_files: bool = False):
-        logging.warning("looking for folder %s", self.path)
+        logging.debug("looking for folder %s", self.path)
         sub_folders = list()
 
         result = self.client.list_objects(
