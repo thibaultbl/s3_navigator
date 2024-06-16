@@ -52,8 +52,8 @@ class TestS3Path:
         new_path = navigator / "test/test.txt"
         assert new_path.path == "test/test.txt"
 
-        new_path = navigator / "test/random/"
-        assert new_path.path == "test/random/"
+        new_path = navigator / "test/random"
+        assert new_path.path == "test/random"
 
     def test_list_folder(self, setup_bucket, bucket):
         client = setup_bucket
@@ -119,6 +119,27 @@ class TestS3Path:
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/test.txt")
         assert navigator.parent == S3Path(client, bucket=bucket, path="folder1")
+    
+    def test_parents(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder1/folder2/test.txt")
+
+        parents = navigator.parents
+        assert len(parents) == 2
+        assert parents[0] == S3Path(client, bucket=bucket, path="folder1/folder2")
+        assert parents[1] == S3Path(client, bucket=bucket, path="folder1")
+    
+    def test_name(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder1/folder2/test.txt")
+
+        assert navigator.name == "test.txt"
+    
+    def test_stem(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder1/folder2/test.tar.gz")
+
+        assert navigator.stem == "test.tar"
 
     def test_exists(self, setup_bucket, bucket):
         client = setup_bucket

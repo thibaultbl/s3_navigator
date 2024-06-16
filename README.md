@@ -35,6 +35,34 @@ for path in s3_path.iterdir(recursive=True):
     print(path)
 ```
 
+## Use classic pathlib.Path function
+
+### parent and parents
+```Python
+>> s3_path_to_myfolder = S3Path(client, bucket, "myfolder/folder1/folder2")
+>> s3_path_to_myfolder.parent
+
+S3Path(client, bucket, "myfolder/folder1")
+
+>> s3_path_to_myfolder.parents
+[S3Path(client, bucket, "myfolder/folder1"), S3Path(client, bucket, "myfolder")]
+
+```
+### name
+
+```Python
+>> s3_path_to_myfolder = S3Path(client, bucket, "myfolder/folder1/folder2/test.txt")
+>> s3_path_to_myfolder.name
+"test.txt"
+```
+
+### exists
+```Python
+>> s3_path_to_myfolder = S3Path(client, bucket, "myfolder/folder1/folder2/test.txt")
+>> s3_path_to_myfolder.exists()
+True
+```
+
 ## Copy file or folder
 
 ### Copy from s3 to local
@@ -47,6 +75,10 @@ local_path = Path("/tmp/local_folder")
 
 # Will download the s3 folder localy
 S3Path.copy(s3_path_to_myfolder, local_path)
+
+# You may also use string for local path
+# Example: copy from s3 to local dir using string
+S3Path.copy(s3_path_to_myfolder, "/tmp/local_folder")
 ```
 
 ### Copy from local to s3
@@ -73,7 +105,9 @@ s3_path_to_anotherfolder = S3Path(client, bucket, "anotherfolder/")
 
 # Will download the s3 folder localy
 S3Path.copy(s3_path_to_myfolder, s3_path_to_anotherfolder)
+
 ```
+
 
 # Contribution
 ## run test

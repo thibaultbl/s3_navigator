@@ -25,11 +25,11 @@ def upload_file(
             raise e
 
 
-class S3Path:
-    def __init__(self, client: boto3.client, bucket: str, path: str):
+class S3Path():
+    def __init__(self, client: boto3.client, bucket: str, path: Union[str, Path]):
         self.client = client
         self.bucket = bucket
-        self.path = path
+        self.path = str(path)
 
     def __repr__(self):
         return f"S3Path(bucket={self.bucket}, path={self.path})"
@@ -101,6 +101,10 @@ class S3Path:
     def name(self):
         return Path(self.path).name
 
+    @property
+    def stem(self):
+        return Path(self.path).stem
+
     def __truediv__(self, other: str) -> "S3Path":
         return S3Path(
             client=self.client,
@@ -151,3 +155,8 @@ class S3Path:
     @property
     def parent(self):
         return S3Path(self.client, self.bucket, str(Path(self.path).parent))
+
+    @property
+    def parents(self):
+        return [S3Path(self.client, self.bucket, parent) for parent in Path(self.path).parents if str(parent) != "."]
+
