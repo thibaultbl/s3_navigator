@@ -167,7 +167,23 @@ class S3Path:
         ]
 
     def delete(self):
-        objects = self.iterdir(recursive=True)
+        objects = self.iterdir(recursive=True, only_files=True)
 
         for object in objects:
+            object.client.delete_object(Bucket=object.bucket, Key=object.path)
+
+    @classmethod
+    def move(cls, source: "S3Path", destination: "S3Path"):
+        objects = source.iterdir(recursive=True, only_files=True)
+
+        for object in objects:
+            copy_source = {"Bucket": object.bucket, "Key": object.path}
+
+            destination_path = object.path.replace(source.path, "")
+
+            object.client.copy_object(
+                CopySource=copy_source,
+                Bucket=destination.bucket,
+                Key=f"{destination.path}{destination_path}",
+            )
             object.client.delete_object(Bucket=object.bucket, Key=object.path)

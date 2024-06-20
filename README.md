@@ -108,6 +108,20 @@ S3Path.copy(s3_path_to_myfolder, s3_path_to_anotherfolder)
 
 ```
 
+## Delete a folder
+```python
+# Create an pathlibs3 object
+s3_path_to_myfolder = S3Path(client, bucket, "myfolder/")
+s3_path_to_myfolder.delete()
+```
+
+## Move a folder
+```python
+# Create an pathlibs3 object
+s3_path_to_myfolder = S3Path(client, bucket, "myfolder/")
+s3_path_other_folder = S3Path(client, bucket, "myotherfolder/")
+S3Path.move(s3_path_to_myfolder, s3_path_other_folder)
+```
 
 # Contribution
 ## run test

@@ -234,3 +234,35 @@ class TestS3Path:
 
         assert len(objects_before) == 3
         assert len(objects_after) == 0
+
+    def test_move(self, setup_bucket, bucket):
+        client = setup_bucket
+        source_folder = S3Path(client, bucket=bucket, path="folder2/")
+        destination_folder = S3Path(client, bucket=bucket, path="new_folder/subfolder/")
+
+        objects_before = [x for x in source_folder.iterdir(recursive=True)]
+        destination_folder_before = [
+            x for x in destination_folder.iterdir(recursive=True)
+        ]
+
+        S3Path.move(source_folder, destination_folder)
+
+        objects_after = [x for x in source_folder.iterdir(recursive=True)]
+        destination_folder_after = [
+            x for x in destination_folder.iterdir(recursive=True)
+        ]
+
+        assert len(objects_before) == 3
+        assert len(objects_after) == 0
+
+        assert len(destination_folder_before) == 0
+        assert len(destination_folder_after) == 3
+
+        contents_before = [
+            x.path.replace(source_folder.path, "") for x in objects_before
+        ]
+        contents_after = [
+            x.path.replace(destination_folder.path, "")
+            for x in destination_folder_after
+        ]
+        assert contents_before == contents_after
