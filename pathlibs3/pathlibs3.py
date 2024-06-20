@@ -25,7 +25,7 @@ def upload_file(
             raise e
 
 
-class S3Path():
+class S3Path:
     def __init__(self, client: boto3.client, bucket: str, path: Union[str, Path]):
         self.client = client
         self.bucket = bucket
@@ -130,10 +130,12 @@ class S3Path():
             client.download_fileobj(source.bucket, source.path, f)
 
     @classmethod
-    def copy(cls, origin: Union["S3Path", Path, str], destination: Union["S3Path", Path, str]):
+    def copy(
+        cls, origin: Union["S3Path", Path, str], destination: Union["S3Path", Path, str]
+    ):
         if isinstance(origin, str):
             origin = Path(origin)
-        
+
         if isinstance(destination, str):
             destination = Path(destination)
 
@@ -158,5 +160,14 @@ class S3Path():
 
     @property
     def parents(self):
-        return [S3Path(self.client, self.bucket, parent) for parent in Path(self.path).parents if str(parent) != "."]
+        return [
+            S3Path(self.client, self.bucket, parent)
+            for parent in Path(self.path).parents
+            if str(parent) != "."
+        ]
 
+    def delete(self):
+        objects = self.iterdir(recursive=True)
+
+        for object in objects:
+            object.client.delete_object(Bucket=object.bucket, Key=object.path)

@@ -119,7 +119,7 @@ class TestS3Path:
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/test.txt")
         assert navigator.parent == S3Path(client, bucket=bucket, path="folder1")
-    
+
     def test_parents(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/folder2/test.txt")
@@ -128,13 +128,13 @@ class TestS3Path:
         assert len(parents) == 2
         assert parents[0] == S3Path(client, bucket=bucket, path="folder1/folder2")
         assert parents[1] == S3Path(client, bucket=bucket, path="folder1")
-    
+
     def test_name(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/folder2/test.txt")
 
         assert navigator.name == "test.txt"
-    
+
     def test_stem(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/folder2/test.tar.gz")
@@ -221,3 +221,16 @@ class TestS3Path:
             "folder1-1",
             "test3.txt",
         }
+
+    def test_delete(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder2/")
+
+        objects_before = [x for x in navigator.iterdir(recursive=True)]
+
+        navigator.delete()
+
+        objects_after = [x for x in navigator.iterdir(recursive=True)]
+
+        assert len(objects_before) == 3
+        assert len(objects_after) == 0
