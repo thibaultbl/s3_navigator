@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pathlibs3"
-version = "1.0.0"
+version = "1.1.0"
 description = "S3 navigation using object, inspired by pathlib.Path"
 authors = ["thibault.blanc"]
 readme = "README.md"
