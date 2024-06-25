@@ -5,6 +5,8 @@ import botocore
 from typing import Union
 from botocore.exceptions import ClientError
 
+logging.basicConfig(level=logging.INFO)
+
 
 def upload_file(
     client, source, destination_bucket, destination_path, exists_ok: bool = False
@@ -114,17 +116,20 @@ class S3Path:
 
     @classmethod
     def _copy_from_s3_to_s3(cls, source: "S3Path", destination: "S3Path"):
+        logging.info("Copying from s3 to s3: %s to %s", source, destination)
         client = source.client
         copy_source = {"Bucket": source.bucket, "Key": source.path}
         client.copy(copy_source, destination.bucket, destination.path)
 
     @classmethod
     def _copy_from_local_to_s3(cls, source: Path, destination: "S3Path"):
+        logging.info("Copying from local to s3: %s to %s", source, destination)
         client = destination.client
         upload_file(client, str(source), destination.bucket, destination.path)
 
     @classmethod
     def _copy_from_s3_to_local(cls, source: "S3Path", destination: Path):
+        logging.info("Copying from s3 to local: %s to %s", source, destination)
         client = source.client
         with open(str(destination), "wb") as f:
             client.download_fileobj(source.bucket, source.path, f)
@@ -140,6 +145,7 @@ class S3Path:
             destination = Path(destination)
 
         if origin.is_dir():
+            logging.info("%s is a directory", origin)
             for path in origin.iterdir():
                 cls.copy(path, destination / path.name)
 
