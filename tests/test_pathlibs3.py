@@ -65,6 +65,38 @@ class TestS3Path:
             S3Path(client, bucket, "folder2/"),
         ]
 
+    def test_list_folder_without_ending_slash(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder2/")
+        res = navigator.iterdir()
+
+        navigator = S3Path(client, bucket=bucket, path="folder2")
+        res_without_slash = navigator.iterdir()
+
+        assert (
+            [x.path for x in res]
+            == [x.path for x in res_without_slash]
+            == ["folder2/folder1-1/", "folder2/test3.txt"]
+        )
+
+    def test_list_folder_recursively_without_ending_slash(self, setup_bucket, bucket):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder2/")
+        res = navigator.iterdir(recursive=True)
+
+        navigator = S3Path(client, bucket=bucket, path="folder2")
+        res_without_slash = navigator.iterdir(recursive=True)
+
+        assert (
+            [x.path for x in res]
+            == [x.path for x in res_without_slash]
+            == [
+                "folder2/folder1-1/",
+                "folder2/folder1-1/test2.txt",
+                "folder2/test3.txt",
+            ]
+        )
+
     def test_list_folder_recursively(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="")
@@ -194,6 +226,7 @@ class TestS3Path:
             "folder4/folder1-1/test2.txt",
             "folder4/test3.txt",
         ]
+
         assert (
             S3Path(client, bucket=bucket, path="folder4/folder1-1/test2.txt").exists()
             == True

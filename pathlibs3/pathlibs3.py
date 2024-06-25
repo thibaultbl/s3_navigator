@@ -1,6 +1,7 @@
 import boto3
 import logging
 from pathlib import Path
+import boto3.exceptions
 import botocore
 from typing import Union
 from botocore.exceptions import ClientError
@@ -33,6 +34,13 @@ class S3Path:
         self.bucket = bucket
         self.path = str(path)
 
+    @property
+    def path_dir(self):
+        if self.is_dir() and not self.path.endswith("/") and self.path != "":
+            return self.path + "/"
+
+        return self.path
+
     def __repr__(self):
         return f"S3Path(bucket={self.bucket}, path={self.path})"
 
@@ -60,7 +68,7 @@ class S3Path:
         sub_folders = list()
 
         result = self.client.list_objects(
-            Bucket=self.bucket, Prefix=self.path, Delimiter="/"
+            Bucket=self.bucket, Prefix=self.path_dir, Delimiter="/"
         )
         for object in self._retrieve_folder_contents(result):
             object = S3Path(self.client, self.bucket, object)
@@ -78,10 +86,12 @@ class S3Path:
             yield subfolder
 
     def is_dir(self) -> bool:
-        # return self.path.endswith("/")
         return self._is_dir()
 
     def _is_dir(self) -> bool:
+        if self.path == "":
+            return True
+
         try:
             result = self.client.head_object(Bucket=self.bucket, Key=self.path)
         except ClientError:
