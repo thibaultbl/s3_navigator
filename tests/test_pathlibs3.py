@@ -255,6 +255,52 @@ class TestS3Path:
             "test3.txt",
         }
 
+    @pytest.mark.parametrize("is_str", [True, False])
+    def test_copy_folder_without_ending_slash(
+        self, setup_bucket, bucket, tmp_path, is_str
+    ):
+        client = setup_bucket
+        navigator = S3Path(client, bucket=bucket, path="folder2")
+
+        # From s3 to s3
+        new_file = S3Path(client, bucket=bucket, path="folder4")
+        assert new_file.exists() == False
+        S3Path.copy(navigator, new_file)
+
+        assert [x.path for x in new_file.iterdir(recursive=True)] == [
+            "folder4/folder1-1/",
+            "folder4/folder1-1/test2.txt",
+            "folder4/test3.txt",
+        ]
+
+        assert (
+            S3Path(client, bucket=bucket, path="folder4/folder1-1/test2.txt").exists()
+            == True
+        )
+
+        # From local to s3
+        with open(tmp_path / "new_file.txt", "a") as f:
+            f.write("Now the file has more content!")
+            f.close()
+
+        new_file = tmp_path / "new_file.txt"
+        new_s3_file = S3Path(client, bucket=bucket, path="folder5")
+        assert new_s3_file.exists() == False
+        S3Path.copy(tmp_path if not is_str else str(tmp_path), new_s3_file)
+
+        new_s3_file = S3Path(client, bucket=bucket, path="folder5/new_file.txt")
+        assert new_s3_file.exists() == True
+
+        # From s3 to local
+        new_file = tmp_path / "folder6"
+        new_file.mkdir()
+        navigator = S3Path(client, bucket=bucket, path="folder2")
+        S3Path.copy(navigator, new_file if not is_str else str(new_file))
+        assert set([x.name for x in new_file.iterdir()]) == {
+            "folder1-1",
+            "test3.txt",
+        }
+
     def test_delete(self, setup_bucket, bucket):
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder2/")

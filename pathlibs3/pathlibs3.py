@@ -94,7 +94,14 @@ class S3Path:
 
         try:
             result = self.client.head_object(Bucket=self.bucket, Key=self.path)
+
         except ClientError:
+            return True
+
+        if (
+            "application/x-directory"
+            in result["ResponseMetadata"]["HTTPHeaders"]["content-type"]
+        ):
             return True
 
         return False
