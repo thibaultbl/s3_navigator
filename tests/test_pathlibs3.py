@@ -177,10 +177,24 @@ class TestS3Path:
         client = setup_bucket
         navigator = S3Path(client, bucket=bucket, path="folder1/test.txt")
 
+        # Check for file
         assert navigator.exists() == True
         navigator = S3Path(client, bucket=bucket, path="folder1/filedonotexists.txt")
 
         assert navigator.exists() == False
+
+        # Check for folder
+        existing_folder = S3Path(client, bucket=bucket, path="folder1/")
+        assert existing_folder.exists() == True
+
+        existing_folder = S3Path(client, bucket=bucket, path="folder1")
+        assert existing_folder.exists() == True
+
+        existing_folder = S3Path(client, bucket=bucket, path="folder999")
+        assert existing_folder.exists() == False
+
+        existing_folder = S3Path(client, bucket=bucket, path="folder999/")
+        assert existing_folder.exists() == False
 
     @pytest.mark.parametrize("is_str", [True, False])
     def test_copy_file(self, setup_bucket, bucket, tmp_path, is_str):

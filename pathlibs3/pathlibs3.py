@@ -41,6 +41,10 @@ class S3Path:
 
         return self.path
 
+    @property
+    def path_without_slash(self):
+        return self.path.rstrip("/")
+
     def __repr__(self):
         return f"S3Path(bucket={self.bucket}, path={self.path})"
 
@@ -107,14 +111,23 @@ class S3Path:
         return False
 
     def exists(self):
-        try:
-            self.client.head_object(Bucket=self.bucket, Key=self.path)
-            return True
-        except ClientError as e:
-            if e.response["Error"]["Code"] == "404":
-                return False
-            else:
-                raise
+        if self.is_dir():
+            resp = self.client.list_objects(
+                Bucket=self.bucket,
+                Prefix=self.path_without_slash,
+                Delimiter="/",
+                MaxKeys=1,
+            )
+            return "CommonPrefixes" in resp
+        else:
+            try:
+                self.client.head_object(Bucket=self.bucket, Key=self.path)
+                return True
+            except ClientError as e:
+                if e.response["Error"]["Code"] == "404":
+                    return False
+                else:
+                    raise
 
     @property
     def name(self):
