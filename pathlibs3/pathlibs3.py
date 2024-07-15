@@ -202,6 +202,15 @@ class S3Path:
             if str(parent) != "."
         ]
 
+    @property
+    def last_modified(self):
+        if not self.is_dir():
+            return self.client.head_object(Bucket=self.bucket, Key=self.path)['LastModified']
+        else:
+            last_modified = [x.last_modified for x in self.iterdir(recursive=True)]
+            return None if not last_modified else max(last_modified)
+
+
     def delete(self):
         objects = self.iterdir(recursive=True, only_files=True)
 

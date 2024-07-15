@@ -2,6 +2,8 @@ import pytest
 import boto3
 from pathlibs3.pathlibs3 import S3Path, upload_file
 from pathlib import Path
+import datetime
+from datetime import timezone
 
 
 def test_upload_file(setup_bucket, bucket, tmp_path):
@@ -314,6 +316,20 @@ class TestS3Path:
             "folder1-1",
             "test3.txt",
         }
+
+    def test_last_modified(self, setup_bucket, bucket):
+        client = setup_bucket
+
+        # With a file
+        navigator = S3Path(client, bucket=bucket, path="folder1/test.txt")
+
+        assert navigator.last_modified.date() == datetime.datetime.now().date()
+
+        # with a folder
+        navigator = S3Path(client, bucket=bucket, path="folder2")
+
+        assert navigator.last_modified.date() == datetime.datetime.now().date()
+
 
     def test_delete(self, setup_bucket, bucket):
         client = setup_bucket
