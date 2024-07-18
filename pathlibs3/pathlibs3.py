@@ -215,6 +215,7 @@ class S3Path:
         objects = self.iterdir(recursive=True, only_files=True)
 
         for object in objects:
+            logging.warning(f"Deleting {object.path}")
             object.client.delete_object(Bucket=object.bucket, Key=object.path)
 
     @classmethod
